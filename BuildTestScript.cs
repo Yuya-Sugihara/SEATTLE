@@ -7,12 +7,12 @@ public class BuildTestScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-debug.log();
+        Debug.Log("this is for first commit.");
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        transform.position += new Vector3(0.01f,0.0f,0.0f);
     }
 }
