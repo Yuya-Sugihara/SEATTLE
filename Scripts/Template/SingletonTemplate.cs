@@ -15,12 +15,12 @@ public class SingletonTemplate<T> : MonoBehaviour
     {
         get
         {
-            if (Instance == null) Debug.Assert(false, "Singleton is not created.");
+            if (Instance == null) return null;
             return Instance;
         }
     }
 
-    public void Awake()
+    public virtual void Awake()
     {
         if (Instance == null)
             Instance = this;

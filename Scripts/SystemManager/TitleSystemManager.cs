@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 /// <summary>
 /// ゲーム内のシーン制御を行う
@@ -18,8 +17,7 @@ public class TitleSystemManager : BaseSystemManager<TitleSystemManager>
     {
         /// デバッグシーン遷移
         if(Input.GetMouseButton(0))
-        {
-            //gameSceneManager.ChangeNextScene(GameSceneManager.GameScene.InGame);
+        { 
             fadeManager.fadeColor = Color.black;
 			fadeManager.fadeOut(GameSceneManager.GameScene.InGame);
         }

@@ -24,9 +24,7 @@ public class FadeManager : SingletonTemplate<FadeManager>
 
     // Start is called before the first frame update
     void Start()
-    {
-        DontDestroyOnLoad(this);
-
+    { 
         GameSceneManager = GameObject.Find("GameSceneManager").GetComponent<GameSceneManager>();
         if (GameSceneManager == null)
         {
