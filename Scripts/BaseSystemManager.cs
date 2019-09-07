@@ -10,15 +10,15 @@ using UnityEngine.SceneManagement;
 public class BaseSystemManager<T> : SingletonTemplate<T>
     where T:BaseSystemManager<T>
 { 
-    protected GameSceneManager gameSceneManager { get; private set; }
+    protected FadeManager fadeManager { get; private set; }
 
-    public void Start()
+    public virtual void Start()
     {
         /// シーン遷移を行う為にインスタンスを保持する
-        gameSceneManager = GameObject.Find("GameSceneManager").GetComponent<GameSceneManager>();
-        if (gameSceneManager == null)
+        fadeManager = GameObject.Find("GameSceneManager").GetComponent<FadeManager>();
+        if (fadeManager == null)
         {
-            Debug.Assert(false, "[BaseSystemManager] start() GameSceneManager is not found.");
+            Debug.Assert(false, "[BaseSystemManager] start() fadeManager is not found.");
             return;
         }
     }
