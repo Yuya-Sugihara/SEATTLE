@@ -12,6 +12,7 @@ public class TitleSystemManager : BaseSystemManager<TitleSystemManager>
         base.Start();
         fadeManager.fadeIn();
 
+       
     }
     public void FixedUpdate()
     {

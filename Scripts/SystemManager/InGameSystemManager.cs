@@ -8,7 +8,8 @@ public class InGameSystemManager : BaseSystemManager<InGameSystemManager>
     public override void Start()
     {
         base.Start();
-        fadeManager.fadeIn();
+        if(fadeManager!=null)
+            fadeManager.fadeIn();
     }
 
     public void FixedUpdate()
@@ -16,8 +17,11 @@ public class InGameSystemManager : BaseSystemManager<InGameSystemManager>
         /// デバッグシーン遷移
         if (Input.GetMouseButton(0))
         {
-            fadeManager.fadeColor = Color.red;
-            fadeManager.fadeOut(GameSceneManager.GameScene.Result);
+            if (fadeManager != null)
+            {
+                fadeManager.fadeColor = Color.red;
+                fadeManager.fadeOut(GameSceneManager.GameScene.Result);
+            }
         }
 
     }
