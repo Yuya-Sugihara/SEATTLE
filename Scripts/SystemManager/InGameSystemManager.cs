@@ -4,10 +4,14 @@ using UnityEngine;
 
 public class InGameSystemManager : BaseSystemManager<InGameSystemManager>
 {
+    private InputManager InputManager;
 
     public override void Start()
     {
         base.Start();
+
+        InputManager = gameObject.GetComponent<InputManager>();
+
         if(fadeManager!=null)
             fadeManager.fadeIn();
     }
@@ -15,7 +19,7 @@ public class InGameSystemManager : BaseSystemManager<InGameSystemManager>
     public void FixedUpdate()
     {
         /// デバッグシーン遷移
-        if (Input.GetMouseButton(0))
+        if (InputManager.isTouchBegan(0))
         {
             if (fadeManager != null)
             {
