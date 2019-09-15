@@ -5,27 +5,51 @@ using UnityEngine;
 
 public abstract class PlayerBaseMove:IPlayerBaseMove
 {
-    protected PlayerMoveCore PlayerMoveCore;
+    protected PlayerMoveCore playerMoveCore { get; private set; }
+    protected Rigidbody rigidbody { get; private set; }
 
+    public PlayerBaseMove(GameObject pl)
+    {
+        if(pl!=null)
+        {
+            playerMoveCore = pl.GetComponent<PlayerMoveCore>();
+            rigidbody = pl.GetComponent<Rigidbody>();
+        }
+    }
     public virtual void movePlayer(GameObject pl)
     {
-        if (PlayerMoveCore == null)
-        {
-            PlayerMoveCore = pl.GetComponent<PlayerMoveCore>();
-        }
     }
 }
 
 /// <summary>
-/// 　待機
+/// 　待機 移動量を０にする
 /// </summary>
 public class PlayerIdleMove : PlayerBaseMove
 {
+    public PlayerIdleMove(GameObject pl):
+        base(pl)
+    { }
+
     public override void movePlayer(GameObject pl)
     {
         base.movePlayer(pl);
 
-        PlayerMoveCore.moveVelocity = Vector3.zero;
+        rigidbody.velocity = Vector3.zero;
+    }
+}
+
+public class PlayerConstantVelocityMove : PlayerBaseMove
+{
+    public PlayerConstantVelocityMove(GameObject pl):
+        base(pl)
+    { }
+
+    public override void movePlayer(GameObject pl)
+    {
+        base.movePlayer(pl);
+
+        //Vector3 nowVelocity = rigidbody.velocity;
+        //rigidbody.AddForce(nowVelocity);
     }
 }
 /// <summary>
@@ -33,23 +57,34 @@ public class PlayerIdleMove : PlayerBaseMove
 /// </summary>
 public class PlayerNormalMove : PlayerBaseMove
 {
+    public PlayerNormalMove(GameObject pl):
+        base(pl)
+    { }
+
     public override void movePlayer(GameObject pl)
     {
         base.movePlayer(pl);
 
-        /// 加速度を元に移動速度を計算する
-        float acceleration = PlayerMoveCore.moveSpeed;
-        Vector3 velocity = (pl.transform.forward * acceleration * Time.deltaTime);
+        /////////////////////////////////////////////////
+        ///////////////　空中にいる時は等速直線運動させる
+        /// 空中にいる時は等速直線運動
+        //if (!playerMoveCore.isGround())
+            //return;
 
-        /// 移動速度が最大速度よりも速い場合、調整する
-        float maxSpeed = pl.GetComponent<PlayerMoveCore>().maxMoveSpeed;
-        if( velocity.sqrMagnitude >= maxSpeed*maxSpeed )
+        /// 加速度を元に移動速度を計算する
+        float acceleration = playerMoveCore.moveAccel;
+        Vector3 velocity = (pl.transform.forward * acceleration * Time.deltaTime);
+        velocity.y = 0.0f;
+
+        /// クランプ
+        float maxSpeed = playerMoveCore.maxMoveSpeed;
+        if( rigidbody.velocity.sqrMagnitude >= maxSpeed * maxSpeed )
         {
-            velocity = Vector3.Normalize(velocity) * maxSpeed;
+            return;
         }
 
-        /// 移動する
-        PlayerMoveCore.moveVelocity += velocity;
+        /// 移動速度の変更
+        rigidbody.AddForce(velocity,mode:ForceMode.Impulse);
     }
 }
 
@@ -58,31 +93,38 @@ public class PlayerNormalMove : PlayerBaseMove
 /// </summary>
 public class PlayerJumpMove : PlayerBaseMove
 {
+    private float VerticalSpeed;
+
+    public PlayerJumpMove(GameObject pl):
+        base(pl)
+    {
+        VerticalSpeed = playerMoveCore.jumpSpeed;
+    }
+
     public override void movePlayer(GameObject pl)
     {
         base.movePlayer(pl);
 
-        
-        /// 加速度を元に移動速度を計算する
-        float acceleration = PlayerMoveCore.jumpSpeed;
-        Vector3 velocity = (pl.transform.up * acceleration * Time.deltaTime);
-
-        /// 移動する
-        PlayerMoveCore.moveVelocity += velocity;
+        rigidbody.AddForce(new Vector3(0.0f, VerticalSpeed * Time.deltaTime,0.0f),mode:ForceMode.Impulse);
+        VerticalSpeed += Physics.gravity.y;
     }
 }
 
 /// <summary>
-/// 落下移動
+/// 落下移動 重力処理はrigidBodyで行う為、下方向の移動量をなくす
 /// </summary>
 public class PlayerFallMove : PlayerBaseMove
 {
+    public PlayerFallMove(GameObject pl):
+        base(pl)
+    { }
+
     public override void movePlayer(GameObject pl)
     {
         base.movePlayer(pl);
-        
-        float gravity = PlayerMoveCore.gravitySpeed;
-        var velocity = new Vector3(0.0f, -gravity,0.0f);
-        PlayerMoveCore.moveVelocity += velocity;
+
+        //Vector3 oldVelocity = PlayerMoveCore.moveVelocity;
+        //PlayerMoveCore.moveVelocity += Physics.gravity;
+
     }
 }

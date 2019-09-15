@@ -8,4 +8,5 @@ using UnityEngine;
 public interface IPlayerBaseMove
 {
     void movePlayer(GameObject pl);
+
 }
