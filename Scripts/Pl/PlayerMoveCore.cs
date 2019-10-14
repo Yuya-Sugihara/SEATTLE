@@ -12,19 +12,16 @@ public class PlayerMoveCore : MonoBehaviour
     [SerializeField]
     private float MoveAccel = 0.1f;
     [SerializeField]
+    private float MoveSpeed = 1.0f;
+    [SerializeField]
     private float MaxMoveSpeed = 2.0f;
     [SerializeField]
     private float JumpSpeed = 1.0f;
     [SerializeField]
     private float GravitySpeed = 0.2f;
 
-    [SerializeField]
-    private bool IsGround;
-    [SerializeField]
-    private IPlayerBaseMove PlayerMove;
-
-    private InputManager InputManager;
     private Rigidbody Rigidbody;
+	private Animator Animator;
 
     public float moveAccel { get { return MoveAccel; } }
     public float maxMoveSpeed { get { return MaxMoveSpeed; } }
@@ -36,76 +33,42 @@ public class PlayerMoveCore : MonoBehaviour
     {
     }
 
-    // Start is called before the first frame update
+
     public void Start()
-    {
-        InputManager = GameObject.Find("InGameSystemManager").GetComponent<InputManager>();
-        Rigidbody = gameObject.GetComponent<Rigidbody>();
+    { 
+        Rigidbody = gameObject.transform.GetComponentInChildren<Rigidbody>();
+		Animator = gameObject.transform.GetComponentInChildren<Animator>();
 
         /// 重力を設定
         Physics.gravity = new Vector3(0.0f, -gravitySpeed, 0.0f);
-
-        PlayerMove = new PlayerNormalMove(gameObject);
     }
 
     public void Update()
     {
-        ///ジャンプ処理
-        if(InputManager.isTouchBegan(0))
+        Vector3 moveVelocity = Vector3.zero;
+        if(Input.GetKey(KeyCode.LeftArrow))
         {
-            PlayerMove = new PlayerJumpMove(gameObject);
+            moveVelocity = -gameObject.transform.forward*moveAccel*Time.deltaTime;
+            Animator.SetBool("Walk Backward", true);
+        }
+        else if(Input.GetKey(KeyCode.RightArrow))
+        {
+            moveVelocity = gameObject.transform.forward * moveAccel * Time.deltaTime;
+            Animator.SetBool("Walk Forward", true);
+        }
+        else
+        {
+            Rigidbody.velocity *= 0.7f;
+            Animator.SetBool("Walk Forward", false);
+            Animator.SetBool("Walk Backward", false);
         }
 
-       
-        /// 何も入力がない場合は通常の横移動をする
-        if(PlayerMove==null)
-        {
-            PlayerMove = new PlayerNormalMove(gameObject);
-        }
-
-        /// rigidbodyの値を変更する
-        PlayerMove.movePlayer(gameObject);
-
-        Debug.Log("PlayerMove: " + PlayerMove.GetType().ToString());
-        Debug.Log("Velocity: " + Rigidbody.velocity);
+        //Rigidbody.AddForce(moveVelocity, ForceMode.Impulse);
     }
 
     public void LateUpdate()
     {
-        /// 地上にいない時は重力をかける
-        if(!isGround())
-        {
-            moveByGravity();
-        }
-
-
-        PlayerMove = null;
+      
     }
 
-    /// <summary>
-    /// 重力を付加する
-    /// </summary>
-    private void moveByGravity()
-    {
-        Rigidbody.AddForce(new Vector3(0.0f, -gravitySpeed * Time.deltaTime, 0.0f),mode:ForceMode.Impulse);
-    }
-
-    /// <summary>
-    /// レイを放ち、着地判定を行う
-    /// </summary>
-    /// <returns></returns>
-    public bool isGround()
-    {
-        Ray ray = new Ray(gameObject.transform.position, -gameObject.transform.up);
-        RaycastHit hit = new RaycastHit();
-        float rayDistance = gameObject.transform.localScale.y * 0.51f;
-
-        Debug.DrawRay(ray.origin,ray.direction,Color.red,1);
-        if (Physics.Raycast(ray, out hit, rayDistance))
-            IsGround = true;
-        else
-            IsGround = false;
-
-        return IsGround;
-    }
 }

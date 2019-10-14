@@ -7,6 +7,21 @@ public class InputManager : SingletonTemplate<InputManager>
     [SerializeField]
     private bool isTouchEnable=false;
 
+    private Vector3[] InputStartPos;
+
+    public override void Awake()
+    {
+        base.Awake();
+
+        InputStartPos = new Vector3[2]; //２本の指を受け付ける
+    }
+
+    public void Update()
+    {
+        updateInputPosInfo();
+    }
+
+    #region 公開メソッド
     /// <summary>
     ///     押し始め
     /// </summary>
@@ -84,4 +99,37 @@ public class InputManager : SingletonTemplate<InputManager>
 
         return false;
     }
+
+    /// <summary>
+    /// マウスでスライドされたベクトルを返す
+    /// </summary>
+    /// <returns></returns>
+    public Vector3 getInputVector()
+    {
+        if(Input.GetMouseButton(0) && InputStartPos[0]!=Vector3.zero)
+        {
+            return Vector3.Normalize(Input.mousePosition - InputStartPos[0]);
+        }
+
+        return Vector3.zero;
+    }
+    #endregion
+
+    #region 非公開メソッド
+    private void updateInputPosInfo()
+    {
+        ///とりあえずキー入力で移動させる
+        if (Input.GetMouseButtonDown(0))
+        {
+            InputStartPos[0] = Input.mousePosition;
+            Debug.Log("input start pos: " + InputStartPos[0]);
+        }
+        else if(Input.GetMouseButtonUp(0))
+        {
+            InputStartPos[0] = Vector3.zero;
+        }
+
+
+    }
+    #endregion
 }
